@@ -187,6 +187,7 @@ RCT_EXPORT_METHOD(startDFU:(NSString *)deviceAddress
                   filePath:(NSString *)filePath
                   packetReceiptNotificationParameter:(NSInteger *)packetReceiptNotificationParameter
                   alternativeAdvertisingNameEnabled:(BOOL *)alternativeAdvertisingNameEnabled
+                  disableDfuResume:(BOOL *)disableDfuResume
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -242,6 +243,8 @@ RCT_EXPORT_METHOD(startDFU:(NSString *)deviceAddress
             initiator.progressDelegate = self;
             initiator.packetReceiptNotificationParameter = packetReceiptNotificationParameter;
             initiator.alternativeAdvertisingNameEnabled = alternativeAdvertisingNameEnabled;
+
+            initiator.disableResume = disableDfuResume;
 
             // Change for iOS 13
             initiator.packetReceiptNotificationParameter = 1; //Rate limit the DFU using PRN.

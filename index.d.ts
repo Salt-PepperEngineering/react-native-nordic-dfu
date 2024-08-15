@@ -6,6 +6,7 @@ declare module "react-native-nordic-dfu" {
       filePath,
       alternativeAdvertisingNameEnabled,
       packetReceiptNotificationParameter,
+      disableDfuResume,
       retries,
       maxMtu,
     }: {
@@ -14,6 +15,7 @@ declare module "react-native-nordic-dfu" {
       filePath: string | null;
       alternativeAdvertisingNameEnabled?: boolean;
       packetReceiptNotificationParameter?: number;
+      disableDfuResume?: boolean;
       retries?: number;
       maxMtu?: number;
     }): Promise<string>;
