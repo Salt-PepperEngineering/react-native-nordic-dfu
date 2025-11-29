@@ -25,7 +25,10 @@ function rejectPromise(message) {
  * @param {string} [obj.deviceName = null] The name of the device in the update notification
  * @param {string} obj.filePath The file system path to the zip-file used for updating
  * @param {Boolean} obj.alternativeAdvertisingNameEnabled Send unique name to device before it is switched into bootloader mode (iOS only)
- * @param {number} obj.packetReceiptNotificationParameter set number of packets of firmware data to be received by the DFU target before sending a new Packet Receipt Notification
+ * @param {number} obj.packetReceiptNotificationParameter Set number of packets of firmware data to be received by the DFU target before sending a new Packet Receipt Notification. Lower values (1-6) = slower but more reliable. Higher values (10-15) = faster. Use 1 for problematic Legacy DFU bootloaders.
+ * @param {number} obj.retries Number of connection retries (Android only, default: 3)
+ * @param {number} obj.maxMtu Maximum MTU size (Android only, default: 23)
+ * @param {Boolean} obj.forceDfu Force DFU mode - required for Legacy DFU bootloaders like Adafruit (Android only, default: false)
  * @returns {Promise} A promise that resolves or rejects with the `deviceAddress` in the return value
  *
  * @example
@@ -34,7 +37,9 @@ function rejectPromise(message) {
  * NordicDFU.startDFU({
  *   deviceAddress: "C3:53:C0:39:2F:99",
  *   deviceName: "Pilloxa Pillbox",
- *   filePath: "/data/user/0/com.nordicdfuexample/files/RNFetchBlobTmp4of.zip"
+ *   filePath: "/data/user/0/com.nordicdfuexample/files/RNFetchBlobTmp4of.zip",
+ *   packetReceiptNotificationParameter: 1, // Use 1 for Adafruit boards
+ *   forceDfu: true // Enable for Legacy DFU bootloaders
  * })
  *   .then(res => console.log("Transfer done:", res))
  *   .catch(console.log);
@@ -47,6 +52,7 @@ function startDFU({
   packetReceiptNotificationParameter = 12,
   retries = 3, // Android only
   maxMtu = 23, // Android only
+  forceDfu = false, // Android only - NEW: for Legacy DFU bootloaders
 }) {
   if (deviceAddress == undefined) {
     return rejectPromise("No deviceAddress defined");
@@ -72,6 +78,7 @@ function startDFU({
       {
         retries,
         maxMtu,
+        forceDfu, // NEW: Pass forceDfu to native module
       }
     );
   } else {
