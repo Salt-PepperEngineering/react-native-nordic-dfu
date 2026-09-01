@@ -1,4 +1,3 @@
-
 package com.pilloxa.dfu;
 
 import android.app.NotificationManager;
@@ -45,15 +44,31 @@ public class RNNordicDfuModule extends ReactContextBaseJavaModule implements Lif
           int mtu = options.getInt("maxMtu");
           starter.setMtu(mtu);
         }
+
+        // NEW: Add forceDfu option for Legacy DFU bootloaders (like Adafruit)
+        if (options.hasKey("forceDfu")) {
+          boolean forceDfu = options.getBoolean("forceDfu");
+          if (forceDfu) {
+            starter.setForceDfu(true);
+            Log.d(LOG_TAG, "Force DFU mode enabled (Legacy DFU)");
+          }
+        }
+
         if (name != null) {
             starter.setDeviceName(name);
         }
-          // mimic behavior of iOSDFULibrary when packetReceiptNotificationParameter is set to `0` - see: https://github.com/NordicSemiconductor/IOS-Pods-DFU-Library/blob/master/iOSDFULibrary/Classes/Implementation/DFUServiceInitiator.swift#L115
+
+        // mimic behavior of iOSDFULibrary when packetReceiptNotificationParameter is set to `0` - see: https://github.com/NordicSemiconductor/IOS-Pods-DFU-Library/blob/master/iOSDFULibrary/Classes/Implementation/DFUServiceInitiator.swift#L115
         if (packetReceiptNotificationParameter > 0) {
+          starter.setPacketsReceiptNotificationsEnabled(true);
           starter.setPacketsReceiptNotificationsValue(packetReceiptNotificationParameter);
+          Log.d(LOG_TAG, "PRN enabled with value: " + packetReceiptNotificationParameter);
         } else {
+          starter.setPacketsReceiptNotificationsEnabled(true);
           starter.setPacketsReceiptNotificationsValue(1);
+          Log.d(LOG_TAG, "PRN set to default value: 1");
         }
+
         starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true);
         if (filePath.endsWith(".bin") || filePath.endsWith(".hex")) {
             starter.setBinOrHex(DfuBaseService.TYPE_APPLICATION, filePath).setInitFile(null, null);
@@ -61,6 +76,7 @@ public class RNNordicDfuModule extends ReactContextBaseJavaModule implements Lif
             starter.setZip(filePath);
         }
       
+        Log.d(LOG_TAG, "Starting DFU for device: " + address + " with file: " + filePath);
         final DfuServiceController controller = starter.start(this.reactContext, DfuService.class);
     }
 
